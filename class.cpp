@@ -9,6 +9,12 @@ using namespace std;
 
 
 int main(int argc, char** argv) {
+
+    ////////////////////////
+    // Edit this!
+    string my_name = "My Name";
+    ////////////////////////
+    
     // ASCII Value of 'a'
     const int LOWERCASE_LO = (int)'a';
     // ASCII Value of 'A'
@@ -16,14 +22,11 @@ int main(int argc, char** argv) {
     // 'a' has higher value than 'A'
     const int DIFF_UPPER_LOWER_CASE = LOWERCASE_LO - UPPERCASE_LO;
     
-
-    int opt;
     string input = "";
     string header = "";
     string source = "";
     string t_text = "";
-    string my_name = "My Name";
-
+    
     // Get input
     if ( (argc <= 1) || (argv[argc-1] == NULL) || (argv[argc-1][0] == '-') ) {
         cerr << "Error! No class name specified." << endl;
@@ -47,7 +50,7 @@ int main(int argc, char** argv) {
 
         if ( !(isalpha(input[i]) || isdigit(input[i])) )
         {
-            cerr << "Error! " << input << " is not a valid input. Only enter the class name - no file extensions." << endl;
+            cerr << "Error! " << input << " is not a valid class name. Only enter the class name - no file extensions." << endl;
             return 1;
         }
     }
@@ -96,12 +99,12 @@ int main(int argc, char** argv) {
     input[0] = (input[0] < LOWERCASE_LO) ? input[0] : input[0] - DIFF_UPPER_LOWER_CASE;
 
     // Get text for class files
-    string headertext = "// "+header+"\n// "+t_text+"\n#ifndef "+header_ifndef+"\n#define "+header_ifndef+"\n\n";
+    string headertext = "// "+header+"\n// "+ my_name + ", " + t_text+"\n#ifndef "+header_ifndef+"\n#define "+header_ifndef+"\n\n";
     headertext += "class "+input+"\n{\n// Private variables\nprivate:\n\n// Public variables\npublic:\n\n";
     headertext += "// Private methods\nprivate:\n\n// Public methods\npublic:\n\n};\n\n";
     headertext += "#endif //";
     headertext += header_ifndef;
-    string sourcetext = "// "+source+"\n// "+t_text+"\n\n#include \""+header+"\"\n";
+    string sourcetext = "// "+source+"\n// "+ my_name + ", " + t_text+"\n\n#include \""+header+"\"\n";
 
     // Create file
     try
