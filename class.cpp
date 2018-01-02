@@ -2,7 +2,6 @@
 #include <iostream>
 #include <unistd.h>
 #include <fstream>
-#include <boost/algorithm/string.hpp> 
 #include <exception>
 #include <ctime>
 
@@ -10,6 +9,13 @@ using namespace std;
 
 
 int main(int argc, char** argv) {
+    // ASCII Value of 'a'
+    const int LOWERCASE_LO = (int)'a';
+    // ASCII Value of 'A'
+    const int UPPERCASE_LO = (int)'A';
+    // 'a' has higher value than 'A'
+    const int DIFF_UPPER_LOWER_CASE = LOWERCASE_LO - UPPERCASE_LO;
+    
 
     int opt;
     string input = "";
@@ -33,6 +39,12 @@ int main(int argc, char** argv) {
     }
     for (int i = 0; i < input.size(); ++i)
     {
+        if (i == 0 && !isalpha(input[i]))
+        {
+            cerr << "Error! Class name must start with an alphabetic character." << endl;
+            return 1;
+        }
+
         if ( !(isalpha(input[i]) || isdigit(input[i])) )
         {
             cerr << "Error! " << input << " is not a valid input. Only enter the class name - no file extensions." << endl;
@@ -46,33 +58,59 @@ int main(int argc, char** argv) {
     t_text = to_string(now->tm_mday) + "/" + to_string(now->tm_mon + 1) + "/" + to_string(now->tm_year + 1900);
 
 
-    // Write text
+    // Get text for header filename, source filename, and IFNDEF class identifier
     header = input;
-    boost::algorithm::to_lower(header);
+    for (int i = 0; i < header.size(); ++i)
+    {
+        if (! isdigit(header[i]))
+        {
+            // To lowercase
+            header[i] = (header[i] < LOWERCASE_LO) ? header[i] + DIFF_UPPER_LOWER_CASE : header[i];
+        }
+    }
     header += ".h";
+
     source = input;
-    boost::algorithm::to_lower(source);
+    for (int i = 0; i < source.size(); ++i)
+    {
+        if (! isdigit(header[i]))
+        {
+            // To lowercase
+            source[i] = (source[i] < LOWERCASE_LO) ? source[i] + DIFF_UPPER_LOWER_CASE : source[i];
+        }
+    }
     source += ".cpp";
+
     string header_ifndef = input;
-    boost::algorithm::to_upper(header_ifndef);
+    for (int i = 0; i < header_ifndef.size(); ++i)
+    {
+        if (! isdigit(header[i]))
+        {
+            // To uppercase
+            header_ifndef[i] = (header_ifndef[i] < LOWERCASE_LO) ? header_ifndef[i] : header_ifndef[i] - DIFF_UPPER_LOWER_CASE;
+        }
+    }
     header_ifndef += "_H";
 
+    // Make sure class name starts with an uppercase letter
+    input[0] = (input[0] < LOWERCASE_LO) ? input[0] : input[0] - DIFF_UPPER_LOWER_CASE;
+
+    // Get text for class files
     string headertext = "// "+header+"\n// "+t_text+"\n#ifndef "+header_ifndef+"\n#define "+header_ifndef+"\n\n";
     headertext += "class "+input+"\n{\n// Private variables\nprivate:\n\n// Public variables\npublic:\n\n";
     headertext += "// Private methods\nprivate:\n\n// Public methods\npublic:\n\n};\n\n";
-    headertext += "#endif";
+    headertext += "#endif //";
+    headertext += header_ifndef;
     string sourcetext = "// "+source+"\n// "+t_text+"\n\n#include \""+header+"\"\n";
-
-    opterr = 0;
 
     // Create file
     try
     {
+        // Check that neither file already exists.
         ifstream s(source);
         ifstream h(header);
-        if( !h.good() && !s.good() ) // Check that neither file already exists.
+        if( !h.good() && !s.good() )
         {
-            
             ofstream sourcefile;
             sourcefile.open (source, std::ofstream::out | std::ofstream::trunc);
             sourcefile << sourcetext;
@@ -88,15 +126,15 @@ int main(int argc, char** argv) {
         }
         else
         {
-            cout << "Error! The following already exists:";
-            if (s.good()) cout << " " << source;
-            if (h.good()) cout << " " << header;
-            cout << endl;
+            std::string msg_err = "Error! The following already exists: ";
+            if (s.good()) msg_err += (source + " ");
+            if (h.good()) msg_err += (header + " ");
+            cerr << msg_err << endl;
+            return 1;
         }
     } catch (const std::exception &e) {
-        cout << "Error! " << e.what();
+        cerr << "Error! " << e.what() << endl;
+        return 1;
     }
-
-
     return 0;
 }
