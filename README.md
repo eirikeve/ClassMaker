@@ -3,7 +3,7 @@ Create C++ class header/source files using the command line
 
 
 # Using the script
-Change the my_name variable to your name, and compile with  `g++ class.cpp`. 
+Change the my_name variable to your name, and compile with  `g++ class.cpp -o class`. 
 
 You can also add the executable to your path so that you can call `class SomeClass` from anywhere.
 
